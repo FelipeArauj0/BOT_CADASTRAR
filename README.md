@@ -8,4 +8,5 @@ irá ser capaz de ler uma planilha com diversos produtos para cadastrar no siste
 * selecionar o grupo do produto;  
 * selecionar **VALOR DE VENDA UTILIZADO (R$)** e colocar valor do produto;  
 * atualizar estoque **MINIMO**, **MAXIMO** e **ATUAL**;  
-* adicionar foto do produto;
+* adicionar foto do produto;  
+
