@@ -10,3 +10,11 @@ irá ser capaz de ler uma planilha com diversos produtos para cadastrar no siste
 * atualizar estoque **MINIMO**, **MAXIMO** e **ATUAL**;  
 * adicionar foto do produto;  
 
+## instalar dependencias
+
+```
+pip3 install pandas
+pip install openpyxl
+
+```
+
