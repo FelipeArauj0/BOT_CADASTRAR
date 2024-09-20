@@ -30,8 +30,8 @@ def categorizar_produto(nome_produto):
 navegador = webdriver.Chrome()
 
 navegador.get("https://gestaoclick.com/inicio")
-# print("Diretório de trabalho atual:", os.getcwd())
-df = pd.read_excel("C:/Users/Usuario/Desktop/bot_cadastrar/src/PRODUTOS.xlsx")
+print("Diretório de trabalho atual:", os.getcwd())
+df = pd.read_excel("C:/Users/AlgoMais/Documents/BOT_CADASTRAR/src/PRODUTOS.xlsx")
 # df = pd.read_excel("C:/Users/Usuario/Desktop/bot_cadastrar/src/cadastro_produtos_matriz.xlsx")
 # print(df)
 
@@ -101,27 +101,41 @@ try:
         )
         gerar_codigoInterno.click()
 
+
         campo_grupo_produto = WebDriverWait(navegador, 10).until(
             EC.presence_of_element_located((By.XPATH, '//*[@id="grupo"]')) 
         )
         campo_grupo_produto.send_keys(categoria_produto)
 
-        # campo_quantidade = navegador.find_element(By.XPATH, '//*[@id="campo-quantidade-produto"]')  # Substituir pelo XPATH correto
-        # campo_quantidade.send_keys(str(quantidade_produto))  # Convertendo a quantidade para string
-
-        # # Submete o formulário (botão de salvar)
-        # botao_salvar = navegador.find_element(By.XPATH, '//*[@id="botao-salvar-produto"]')  # Substituir pelo XPATH correto
-        # botao_salvar.click()
 
         # Aguarda um pouco antes de adicionar valor produto
         time.sleep(2)
         
+        #clicar botao possuir variavel
+        possui_variavel = WebDriverWait(navegador, 10).until(
+        EC.element_to_be_clickable((By.XPATH, '/html/body/div[2]/div/div/aside[2]/div/div/section/form/div[1]/div[2]/div[1]/div[1]/div[7]/select'))
+        )
+
+        possui_variavel.click()
+
+        time.sleep(2)
+        
+        #clicar botao sim
+        variavel_sim = WebDriverWait(navegador, 10).until(
+        EC.element_to_be_clickable((By.XPATH, '/html/body/div[2]/div/div/aside[2]/div/div/section/form/div[1]/div[2]/div[1]/div[1]/div[7]/select/option[1]')))
+
+        
+
+        variavel_sim.click()
+
          # Aguarde até que o botão da aba "Valores" esteja visível e clique
         aba_valores = WebDriverWait(navegador, 10).until(
             EC.element_to_be_clickable((By.XPATH, '//*[text()="Valores"]'))
         )
         aba_valores.click()
         
+        # Aguarda um pouco
+        time.sleep(2)
 
         #clicar botao valor de venda
         campo_valor_venda = WebDriverWait(navegador, 10).until(
