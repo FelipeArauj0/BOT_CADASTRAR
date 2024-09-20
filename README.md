@@ -11,8 +11,10 @@ irá ser capaz de ler uma planilha com diversos produtos para cadastrar no siste
 * adicionar foto do produto;  
 
 ## instalar dependencias
+codigo de testes para enviar para repositorio
 
-python https://www.python.org/downloads/
+
+python https://www.python.org/downloads/  
 git https://git-scm.com/downloads
 
 ```
