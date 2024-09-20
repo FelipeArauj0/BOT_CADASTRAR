@@ -12,9 +12,13 @@ irá ser capaz de ler uma planilha com diversos produtos para cadastrar no siste
 
 ## instalar dependencias
 
+python https://www.python.org/downloads/
+git https://git-scm.com/downloads
+
 ```
 pip3 install pandas
 pip install openpyxl
+pip intall selenium
 
 ```
 
