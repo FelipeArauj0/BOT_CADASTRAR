@@ -6,32 +6,14 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import os
 import time
-
-
-# Dicionário de categorias com palavras-chave
-categorias_palavras_chave = {
-    "SUPORTE": ["suporte", "base"],
-    "PAPELARIA": ["papel", "caneta", "caderno", "apontador", "borracha"],
-    "ACESSÓRIO": ["chaveiro","pulseira", "capa"],
-    "ELETRÔNICOS": ["antena", "controle", "fone", "cabo", "adaptador", "carregador"],
-    "INFORMÁTICA": ["mouse", "teclado", "monitor", "impressora", "usb", "pendrive"]
-}
-
-
-# Função para categorizar o produto
-def categorizar_produto(nome_produto):
-    nome_produto = nome_produto.lower()  # Converter o nome do produto para letras minúsculas
-    for categoria, palavras in categorias_palavras_chave.items():
-        for palavra in palavras:
-            if palavra in nome_produto:
-                return categoria
-    return "OUTROS"  # Retorna uma categoria padrão
+from utils.funcoes import categorizar_produto
 
 navegador = webdriver.Chrome()
 
 navegador.get("https://gestaoclick.com/inicio")
-# print("Diretório de trabalho atual:", os.getcwd())
-df = pd.read_excel("C:/Users/Usuario/Desktop/bot_cadastrar/src/PRODUTOS.xlsx")
+print("Diretório de trabalho atual:", os.getcwd())
+# df = pd.read_excel("C:/Users/Usuario/Desktop/bot_cadastrar/src/PRODUTOS.xlsx") #loja pc esquerdo
+df = pd.read_excel("C:/Users/Usuario/Desktop/bot_cadastrar/src/PRODUTOS.xlsx") # PC casa
 # df = pd.read_excel("C:/Users/Usuario/Desktop/bot_cadastrar/src/cadastro_produtos_matriz.xlsx")
 # print(df)
 
@@ -63,15 +45,6 @@ try:
     
     time.sleep(2)
 
-
-    # .columns lista as colunas da tabela
-    # print(df.columns) 
-
-    # iloc.[numero] seleciona de acordo a linha solicitada.
-    # linha_selecionada = df.iloc[1]
-    # nome_produto = linha_selecionada['nome']
-    # print(f'Nome do produto: {nome_produto}')
-
     for index, row in df.iterrows():
         nome_produto = row['nome']
         preco_produto = row['valor de venda']
@@ -81,7 +54,7 @@ try:
 
         # Determina a categoria do produto
         categoria_produto = categorizar_produto(nome_produto)
-        print(f'Produto: {nome_produto} | Categoria: {categoria_produto}')
+        # print(f'Produto: {nome_produto} | Categoria: {categoria_produto}') # utilizar para debugar codigo 
         
         # Clica no botão para adicionar um novo produto
         adicionar_produtos = WebDriverWait(navegador, 10).until(
@@ -106,17 +79,9 @@ try:
         )
         campo_grupo_produto.send_keys(categoria_produto)
 
-        # campo_quantidade = navegador.find_element(By.XPATH, '//*[@id="campo-quantidade-produto"]')  # Substituir pelo XPATH correto
-        # campo_quantidade.send_keys(str(quantidade_produto))  # Convertendo a quantidade para string
-
-        # # Submete o formulário (botão de salvar)
-        # botao_salvar = navegador.find_element(By.XPATH, '//*[@id="botao-salvar-produto"]')  # Substituir pelo XPATH correto
-        # botao_salvar.click()
-
-        # Aguarda um pouco antes de adicionar valor produto
         time.sleep(2)
         
-         # Aguarde até que o botão da aba "Valores" esteja visível e clique
+        # Aguarde até que o botão da aba "Valores" esteja visível e clique
         aba_valores = WebDriverWait(navegador, 10).until(
             EC.element_to_be_clickable((By.XPATH, '//*[text()="Valores"]'))
         )
@@ -125,7 +90,7 @@ try:
 
         #clicar botao valor de venda
         campo_valor_venda = WebDriverWait(navegador, 10).until(
-        EC.element_to_be_clickable((By.XPATH, '/html/body/div[2]/div/div/aside[2]/div/div/section/form/div[1]/div[2]/div[3]/div/div[2]/div/div[2]/div[2]/table/tbody/tr[1]/td[5]/input'))
+        EC.element_to_be_clickable((By.XPATH, '/html/body/div[2]/div/div/aside[2]/div/div/section/form/div[1]/div[2]/div[3]/div/div[2]/div/div[2]/div[2]/table/tbody/tr/td[4]/input'))
         )
         campo_valor_venda.clear()
         campo_valor_venda.send_keys((str(preco_produto)))

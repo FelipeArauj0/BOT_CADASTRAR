@@ -1,21 +1,34 @@
-# Função para categorizar o produto com base nas regras especificadas
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import os
+import time
+from .dicionario_categorias import categorias_palavras_chave as contagem_palavras
+
+navegador = webdriver.Chrome()
+
+
+# Função para categorizar o produto
 def categorizar_produto(nome_produto):
     nome_produto = nome_produto.lower()  # Converter o nome do produto para letras minúsculas
-    contagem_palavras = {}  # Dicionário para contar as ocorrências de palavras-chave por categoria
+    
+    # Inicializa uma nova contagem de palavras para este produto
+    contagem = {categoria: 0 for categoria in contagem_palavras.keys()}
     
     # Percorre o dicionário de categorias e palavras-chave
-    for categoria, palavras in categorias_palavras_chave.items():
-        contagem_palavras[categoria] = 0  # Inicializa a contagem da categoria
+    for categoria, palavras in contagem_palavras.items():
         for palavra in palavras:
             if palavra in nome_produto:
-                contagem_palavras[categoria] += 1  # Incrementa a contagem para a categoria
+                contagem[categoria] += 1  # Incrementa a contagem para a categoria
 
     # Filtra as categorias que têm pelo menos uma palavra-chave no nome do produto
-    categorias_encontradas = {cat: count for cat, count in contagem_palavras.items() if count > 0}
+    categorias_encontradas = {cat: count for cat, count in contagem.items() if count > 0}
     
     if len(categorias_encontradas) == 0:
         return "OUTROS"  # Nenhuma categoria encontrada
-
+    
     # Se houver mais de uma categoria com palavras-chave encontradas
     if len(categorias_encontradas) > 1:
         # Ordena as categorias pela contagem de palavras-chave em ordem decrescente
@@ -29,3 +42,6 @@ def categorizar_produto(nome_produto):
     else:
         # Se apenas uma categoria tiver palavras-chave, retorna essa categoria
         return list(categorias_encontradas.keys())[0]
+    
+# cadastrar produto
+cadastrar_produto = () #elaborar metodo para fazer o cadastrar produto por aqui para evitar que o codigo principal fique muito grande e complexo de entender e puxar ele lá no arquivo principal logo depois do codigo de verificar se o produto ja foi cadastrado.
