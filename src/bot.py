@@ -12,8 +12,8 @@ navegador = webdriver.Chrome()
 
 navegador.get("https://gestaoclick.com/inicio")
 print("Diretório de trabalho atual:", os.getcwd())
-# df = pd.read_excel("C:/Users/Usuario/Desktop/bot_cadastrar/src/PRODUTOS.xlsx") #loja pc esquerdo
-df = pd.read_excel("C:/Users/Usuario/Desktop/bot_cadastrar/src/PRODUTOS.xlsx") # PC casa
+df = pd.read_excel("C:/Users/AlgoMais/Documents/BOT_CADASTRAR/src/PRODUTOS.xlsx") #loja pc esquerdo
+# df = pd.read_excel("C:/Users/Usuario/Desktop/bot_cadastrar/src/PRODUTOS.xlsx") # PC casa
 # df = pd.read_excel("C:/Users/Usuario/Desktop/bot_cadastrar/src/cadastro_produtos_matriz.xlsx")
 # print(df)
 
