@@ -14,8 +14,8 @@ navegador = webdriver.Chrome()
 
 navegador.get("https://gestaoclick.com/inicio")
 print("Diretório de trabalho atual:", os.getcwd())
-# df = pd.read_excel("C:/Users/AlgoMais/Documents/BOT_CADASTRAR/src/PRODUTOS.xlsx") #loja pc esquerdo
-df = pd.read_excel("C:/Users/Usuario/Desktop/bot_cadastrar/src/PRODUTOS.xlsx") # PC casa
+df = pd.read_excel("C:/Users/AlgoMais/Documents/BOT_CADASTRAR/src/PRODUTOS.xlsx") #loja pc esquerdo
+# df = pd.read_excel("C:/Users/Usuario/Desktop/bot_cadastrar/src/PRODUTOS.xlsx") # PC casa
 # df = pd.read_excel("C:/Users/Usuario/Desktop/bot_cadastrar/src/cadastro_produtos_matriz.xlsx")
 # print(df)
 
@@ -79,6 +79,22 @@ try:
                 print(f"Erro ao tentar interagir com o elemento: {e}")
                 break  # Sai do loop se outro erro ocorrer
     
+    def aguardar_loading_desaparecer(timeout=30):
+        try:
+            # Aguarda até que o elemento com id="loading" apareça com display="block"
+            WebDriverWait(navegador, timeout).until(
+                EC.presence_of_element_located((By.ID, "loading"))
+            )
+            
+            # Aguarda até que o display do elemento com id="loading" seja "none"
+            WebDriverWait(navegador, timeout).until(
+                lambda driver: driver.execute_script("return document.getElementById('loading').style.display") == "none"
+            )
+            print("Carregamento completo.")
+        except Exception as e:
+            print(f"Erro ao aguardar o desaparecimento do loading: {e}")
+
+
     # Verifica se o produto está cadastrado
     for index, row in df.iterrows():
         nome_produto = row['nome']
@@ -91,6 +107,10 @@ try:
         # Determina a categoria do produto
         categoria_produto = categorizar_produto(nome_produto)
 
+        aguardar_loading_desaparecer()
+        time.sleep(1)
+
+
         #clica no campor buscar produto
         campo_busca = localizar_elemento('/html/body/div[2]/div/div/aside[2]/div/div/section/div/div[1]/div/div[2]/form/div/input')
         campo_busca.clear()
@@ -100,14 +120,23 @@ try:
 
 
         # Aguarda os resultados da busca
-        time.sleep(2)
+        aguardar_loading_desaparecer()
 
 
         # Verifica se a mensagem de "Nenhum produto foi encontrado" aparece
         try:
+            # Aguarda os resultados da busca
+            aguardar_loading_desaparecer()
+            time.sleep(1)
+
+
             mensagem_nao_encontrado = navegador.find_elements(By.XPATH, '/html/body/div[2]/div/div/aside[2]/div/div/section/div/div[2]/div[2]/h3')
             if len(mensagem_nao_encontrado) > 0 and mensagem_nao_encontrado[0].text == "Nenhum produto foi encontrado!":
                 print(f'Produto "{nome_produto}" não está cadastrado. Procedendo com o cadastro...')
+                
+                # Aguarda os resultados da busca
+                aguardar_loading_desaparecer()
+                time.sleep(1)
 
                 # Clica no botão para adicionar um novo produto
                 adicionar_produtos = localizar_elemento('/html/body/div[2]/div/div/aside[2]/div/div/section/div/div[1]/div/div[1]/a')
@@ -129,11 +158,13 @@ try:
                 campo_grupo_produto.send_keys(categoria_produto)
 
                 # Aguarda os resultados da busca
-                time.sleep(1)
+                aguardar_loading_desaparecer()
 
                 # Aba "Valores"
                 aba_valores = localizar_elemento('//*[text()="Valores"]')
                 aba_valores.click()
+
+                time.sleep(1)
 
                 # Preenche o valor de venda
                 campo_valor_venda = localizar_elemento('/html/body/div[2]/div/div/aside[2]/div/div/section/form/div[1]/div[2]/div[3]/div/div[2]/div/div[2]/div[2]/table/tbody/tr/td[4]/input')
@@ -141,17 +172,20 @@ try:
                 campo_valor_venda.send_keys(str(preco_produto))
 
                 # Aguarda os resultados da busca
-                time.sleep(1)
+                aguardar_loading_desaparecer()
 
                 # Aba "Estoque"
                 aba_estoque = localizar_elemento('//*[text()="Estoque"]')
                 aba_estoque.click()
 
+                time.sleep(1)
 
                 # Preenche campos de estoque
                 campo_estoque_min = localizar_elemento('/html/body/div[2]/div/div/aside[2]/div/div/section/form/div[1]/div[2]/div[4]/div/div[1]/div[1]/input')
                 campo_estoque_min.clear()
                 campo_estoque_min.send_keys(str(estoque_min))
+
+               
 
                 campo_estoque_max = localizar_elemento('/html/body/div[2]/div/div/aside[2]/div/div/section/form/div[1]/div[2]/div[4]/div/div[1]/div[2]/input')
                 campo_estoque_max.clear()
@@ -162,7 +196,7 @@ try:
                 campo_estoque_atual.send_keys(str(estoque_atual))
 
                 # Aguarda os resultados da busca
-                time.sleep(1)
+                aguardar_loading_desaparecer()
 
                 # Cadastra o produto
                 cadastrar_produto = localizar_elemento('/html/body/div[2]/div/div/aside[2]/div/div/section/form/div[2]/button')
@@ -173,22 +207,27 @@ try:
 
                 # Atualiza a página
                 navegador.refresh()
-                time.sleep(1)
-                navegador.implicitly_wait(3)
+                aguardar_loading_desaparecer()
             else:
                 print(f'Produto "{nome_produto}" já está cadastrado. Pulando para o próximo produto...')
                 interagir_com_elemento('//*[@id="app"]/div/div/aside[1]/section/ul/li[2]/ul/li[1]/a', lambda elem: elem.click())
-                navegador.refresh()
+                aguardar_loading_desaparecer()
+                # navegador.refresh()
+                aguardar_loading_desaparecer()
                 time.sleep(1)
-                navegador.implicitly_wait(3)
+
+
         except Exception as e:
             print(f"Erro ao verificar se o produto está cadastrado: {e}")
             continue
-        
+       
         # Aguarda os resultados da busca
+        aguardar_loading_desaparecer()
         navegador.refresh()
-        time.sleep(2)
-        navegador.implicitly_wait(3)
+        aguardar_loading_desaparecer()
+        time.sleep(1)
+
+        
 
 
 
