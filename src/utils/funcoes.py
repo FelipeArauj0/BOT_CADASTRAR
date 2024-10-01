@@ -9,7 +9,7 @@ import os
 import time
 from .dicionario_categorias import categorias_palavras_chave as contagem_palavras
 
-navegador = webdriver.Chrome()
+
 df = pd.read_excel("C:/Users/Usuario/Desktop/bot_cadastrar/src/PRODUTOS.xlsx") # PC casa
 
 # Função para categorizar o produto
@@ -46,19 +46,42 @@ def categorizar_produto(nome_produto):
         return list(categorias_encontradas.keys())[0]
 
 # Função para localizar elementos com tentativa de recuperação
-def localizar_elemento(xpath, timeout=10):
+def localizar_elemento(navegador,xpath_elemento, timeout=10):
+    # elemento_presente = navegador.find_elements(By.XPATH, xpath_elemento)
+    # if len(elemento_presente) == 0:
+    #     print(f"Elemento {xpath_elemento} não encontrado no DOM.")
+    # else:
+    #     print(f"Elemento {xpath_elemento} encontrado no DOM.")
     for _ in range(3):  # Tenta 3 vezes
         try:
-            return WebDriverWait(navegador, timeout).until(
-                EC.presence_of_element_located((By.XPATH, xpath))
+            elemento = WebDriverWait(navegador, timeout).until(
+                EC.visibility_of_element_located((By.XPATH, xpath_elemento))
             )
+            print('elemento...',elemento)
+            return elemento
         except Exception as e:
             print(f"Tentativa falhou: {e}. Tentando novamente...")
             time.sleep(2)
-    raise Exception(f"Falha ao localizar o elemento: {xpath}")
+    raise Exception(f"Falha ao localizar o elemento: {xpath_elemento}") 
+
+# # Função para localizar elementos com tentativa de recuperação e maior detalhe de erro
+# def localizar_elemento(xpath, timeout=15):
+#     for tentativa in range(3):  # Tenta 3 vezes
+#         try:
+#             # Adiciona uma espera explícita para verificar se o elemento está visível e clicável
+#             elemento = WebDriverWait(navegador, timeout).until(
+#                 EC.element_to_be_clickable((By.XPATH, xpath))
+#             )
+#             print(f"Elemento localizado com sucesso na tentativa {tentativa + 1}")
+#             return elemento
+#         except Exception as e:
+#             print(f"Tentativa {tentativa + 1} falhou: {e}. Tentando novamente em 2 segundos...")
+#             time.sleep(2)  # Espera um pouco antes de tentar novamente
+#     raise Exception(f"Falha ao localizar o elemento após 3 tentativas: {xpath}")
+
 
 # Função para localizar e interagir com elementos com tentativas de relocalização
-def interagir_com_elemento(xpath, acao, tentativas=3):
+def interagir_com_elemento(navegador,xpath, acao, tentativas=3):
     for tentativa in range(tentativas):
         try:
             # Localiza o elemento
@@ -91,7 +114,7 @@ def interagir_com_elemento(xpath, acao, tentativas=3):
 #     except Exception as e:
 #         print(f"Erro ao aguardar o desaparecimento do loading: {e}")
 
-def aguardar_loading_desaparecer(timeout=30):
+def aguardar_loading_desaparecer(navegador,timeout=30):
     try:
         WebDriverWait(navegador, timeout).until(
             lambda driver: driver.execute_script("""
@@ -106,138 +129,4 @@ def aguardar_loading_desaparecer(timeout=30):
     except Exception as e:
         print(f"Erro ao aguardar o desaparecimento do loading: {e}")
 
-
-def processo_cadastrar_produtos():
-    for index, row in df.iterrows():
-        nome_produto = row['nome']
-        preco_produto = row['valor de venda']
-        estoque_min = row['estoque-min']
-        estoque_max = row['estoque-max']
-        estoque_atual = row['estoque-atual']
-    
-        # Verifica se o produto existe
-        try:
-            # Determina a categoria do produto
-            categoria_produto = categorizar_produto(nome_produto)
-
-            aguardar_loading_desaparecer()
-            time.sleep(1)
-
-            #clica no campo buscar produto
-            campo_busca = localizar_elemento('/html/body/div[2]/div/div/aside[2]/div/div/section/div/div[1]/div/div[2]/form/div/input')
-            campo_busca.clear()
-            campo_busca.send_keys(nome_produto)
-            campo_busca.send_keys(Keys.RETURN)
-            
-            # Aguarda
-            aguardar_loading_desaparecer()
-            time.sleep(1)
-            
-            mensagem_nao_encontrado = navegador.find_elements(By.XPATH, '/html/body/div[2]/div/div/aside[2]/div/div/section/div/div[2]/div[2]/h3')
-            if len(mensagem_nao_encontrado) > 0 and mensagem_nao_encontrado[0].text == "Nenhum produto foi encontrado!":
-                print(f'Produto "{nome_produto}" não está cadastrado. Procedendo com o cadastro...')
-                
-                # Aguarda
-                aguardar_loading_desaparecer()
-                time.sleep(1)
-
-                # Clica no botão para adicionar um novo produto
-                adicionar_produtos = localizar_elemento('/html/body/div[2]/div/div/aside[2]/div/div/section/div/div[1]/div/div[1]/a')
-                adicionar_produtos.click()
-
-                # Aguarda
-                aguardar_loading_desaparecer()
-                time.sleep(1)
-
-                # Preenche o NOME do produto
-                adicionar_nome_produto = localizar_elemento('/html/body/div[2]/div/div/aside[2]/div/div/section/form/div[1]/div[2]/div[1]/div[1]/div[1]/input')
-                adicionar_nome_produto.send_keys(nome_produto)
-                
-                # Aguarda
-                time.sleep(1)
-
-                # Clica para GERAR o código interno
-                gerar_codigoInterno = localizar_elemento('/html/body/div[2]/div/div/aside[2]/div/div/section/form/div[1]/div[2]/div[1]/div[1]/div[2]/div/div/button')
-                gerar_codigoInterno.click()
-
-                # Aguarda
-                time.sleep(1)
-
-                # Seleciona a categoria do produto
-                campo_grupo_produto = localizar_elemento('//*[@id="grupo"]')
-                campo_grupo_produto.send_keys(categoria_produto)
-
-                # Aguarda
-                time.sleep(1)
-
-
-                # Aba "Valores"
-                aba_valores = localizar_elemento('//*[text()="Valores"]')
-                aba_valores.click()
-
-                time.sleep(1)
-
-                # Preenche o valor de venda
-                campo_valor_venda = localizar_elemento('/html/body/div[2]/div/div/aside[2]/div/div/section/form/div[1]/div[2]/div[3]/div/div[2]/div/div[2]/div[2]/table/tbody/tr/td[4]/input')
-                campo_valor_venda.clear()
-                campo_valor_venda.send_keys(str(preco_produto))
-
-                # Aguarda
-                time.sleep(1)
-
-                # Aba "Estoque"
-                aba_estoque = localizar_elemento('//*[text()="Estoque"]')
-                aba_estoque.click()
-
-                # Aguarda
-                time.sleep(1)
-
-                # Preenche campos de estoque
-                campo_estoque_min = localizar_elemento('/html/body/div[2]/div/div/aside[2]/div/div/section/form/div[1]/div[2]/div[4]/div/div[1]/div[1]/input')
-                campo_estoque_min.clear()
-                campo_estoque_min.send_keys(str(estoque_min))
-
-
-
-                campo_estoque_max = localizar_elemento('/html/body/div[2]/div/div/aside[2]/div/div/section/form/div[1]/div[2]/div[4]/div/div[1]/div[2]/input')
-                campo_estoque_max.clear()
-                campo_estoque_max.send_keys(str(estoque_max))
-
-                campo_estoque_atual = localizar_elemento('/html/body/div[2]/div/div/aside[2]/div/div/section/form/div[1]/div[2]/div[4]/div/div[1]/div[3]/input')
-                campo_estoque_atual.clear()
-                campo_estoque_atual.send_keys(str(estoque_atual))
-
-                # Aguarda
-                time.sleep(1)
-
-                # Cadastra o produto
-                cadastrar_produto = localizar_elemento('/html/body/div[2]/div/div/aside[2]/div/div/section/form/div[2]/button')
-                cadastrar_produto.click()
-
-                # Aguarda loading desaparecer
-                aguardar_loading_desaparecer()
-                time.sleep(1)
-
-
-                
-            else:
-                print(f'Produto "{nome_produto}" já está cadastrado. Pulando para o próximo produto...')
-                interagir_com_elemento('//*[@id="app"]/div/div/aside[1]/section/ul/li[2]/ul/li[1]/a', lambda elem: elem.click())
-                # aguardar_loading_desaparecer()
-                # navegador.refresh()
-                # aguardar_loading_desaparecer()
-                time.sleep(1)
-
-
-        except Exception as e:
-            print(f"Erro ao verificar se o produto está cadastrado: {e}")
-            continue
-    
-        # Atualiza a página
-        navegador.refresh()
-        aguardar_loading_desaparecer()
-        time.sleep(1)
-
-        print("Produto cadastrado com sucesso!")
-    print("Todos os produtos foram cadastrados com sucesso!")
 
