@@ -13,6 +13,7 @@ from utils.funcoes import interagir_com_elemento
 from utils.funcoes import aguardar_loading_desaparecer
 # from utils.funcoes import processo_cadastrar_produtos
 from utils.navegador import iniciar_navegador
+import math
 
 navegador = iniciar_navegador()
 navegador.get('https://gestaoclick.com/')
@@ -75,6 +76,7 @@ try:
         gerenciar_produtos.click()
         time.sleep(2)
 
+        MAX_tentativas = 3
         # processo_cadastrar_produtos()
         for index, row in df.iterrows():
             nome_produto = row['nome']
@@ -83,141 +85,155 @@ try:
             estoque_min = row['estoque-min']
             estoque_max = row['estoque-max']
             estoque_atual = row['estoque-atual']
-        
-            # Verifica se o produto existe
-            try:
-                # Determina a categoria do produto
-                categoria_produto = categorizar_produto(nome_produto)
+            print('codigo barras.....',str(codigo_barras).strip())
+            
+            tentativas = 0
+            sucess = False
 
-                aguardar_loading_desaparecer(navegador)
-                time.sleep(1)
+            while tentativas < MAX_tentativas and not sucess:
 
-                
+                # Verifica se o produto existe
+                try:
+                    # Determina a categoria do produto
+                    categoria_produto = categorizar_produto(nome_produto)
 
-                # #clica no campo buscar produto
-                campo_busca = localizar_elemento(navegador,'/html/body/div[2]/div/div/aside[2]/div/div/section/div/div[1]/div/div[2]/form/div/input')
-                campo_busca.clear()
-                campo_busca.send_keys(nome_produto)
-                campo_busca.send_keys(Keys.RETURN)
-                
-                # Aguarda
-                aguardar_loading_desaparecer(navegador)
-                time.sleep(1)
-                
-                mensagem_nao_encontrado = navegador.find_elements(By.XPATH, '/html/body/div[2]/div/div/aside[2]/div/div/section/div/div[2]/div[2]/h3')
-                if len(mensagem_nao_encontrado) > 0 and mensagem_nao_encontrado[0].text == "Nenhum produto foi encontrado!":
-                    print(f'Produto "{nome_produto}" não está cadastrado. Procedendo com o cadastro...')
+                    aguardar_loading_desaparecer(navegador)
+                    time.sleep(1)
+
+                    
+
+                    # #clica no campo buscar produto
+                    campo_busca = localizar_elemento(navegador,'/html/body/div[2]/div/div/aside[2]/div/div/section/div/div[1]/div/div[2]/form/div/input')
+                    campo_busca.clear()
+                    campo_busca.send_keys(nome_produto)
+                    campo_busca.send_keys(Keys.RETURN)
                     
                     # Aguarda
                     aguardar_loading_desaparecer(navegador)
                     time.sleep(1)
-
-                    # Clica no botão para adicionar um novo produto
-                    adicionar_produtos = localizar_elemento(navegador,'/html/body/div[2]/div/div/aside[2]/div/div/section/div/div[1]/div/div[1]/a')
-                    adicionar_produtos.click()
-
-                    # Aguarda
-                    aguardar_loading_desaparecer(navegador)
-                    time.sleep(1)
-
-                    # Preenche o NOME do produto
-                    adicionar_nome_produto = localizar_elemento(navegador,'/html/body/div[2]/div/div/aside[2]/div/div/section/form/div[1]/div[2]/div[1]/div[1]/div[1]/input')
-                    adicionar_nome_produto.send_keys(nome_produto)
                     
-                    # Aguarda
-                    time.sleep(1)
+                    mensagem_nao_encontrado = navegador.find_elements(By.XPATH, '/html/body/div[2]/div/div/aside[2]/div/div/section/div/div[2]/div[2]/h3')
+                    if len(mensagem_nao_encontrado) > 0 and mensagem_nao_encontrado[0].text == "Nenhum produto foi encontrado!":
+                        print(f'Produto "{nome_produto}" não está cadastrado. Procedendo com o cadastro...')
+                        
+                        # Aguarda
+                        time.sleep(1)
 
-                    # Clica para GERAR o código interno
-                    gerar_codigoInterno = localizar_elemento(navegador,'/html/body/div[2]/div/div/aside[2]/div/div/section/form/div[1]/div[2]/div[1]/div[1]/div[2]/div/div/button')
-                    gerar_codigoInterno.click()
+                        # Clica no botão para adicionar um novo produto
+                        adicionar_produtos = localizar_elemento(navegador,'/html/body/div[2]/div/div/aside[2]/div/div/section/div/div[1]/div/div[1]/a')
+                        adicionar_produtos.click()
 
-                    # Aguarda
-                    time.sleep(1)
+                        # Aguarda
+                        aguardar_loading_desaparecer(navegador)
+                        time.sleep(1)
 
-                    #se tiver codigo de barras adiciona se nao pula para categoria
-                    if codigo_barras:  
-                        try:
-                            campo_codigo_barras = localizar_elemento(navegador, '/html/body/div[2]/div/div/aside[2]/div/div/section/form/div[1]/div[2]/div[1]/div[1]/div[3]/input')
-                            campo_codigo_barras.clear()
-                            campo_codigo_barras.send_keys(str(codigo_barras))
-                            print(f"Código de barras {codigo_barras} inserido.")
-                        except Exception as e:
-                            print(f"Erro ao inserir o código de barras: {e}")
-                    
-                    campo_codigo_barras = localizar_elemento(navegador, '/html/body/div[2]/div/div/aside[2]/div/div/section/form/div[1]/div[2]/div[1]/div[1]/div[3]/input')
-                    campo_codigo_barras.clear()
-                    # Seleciona a categoria do produto
-                    campo_grupo_produto = localizar_elemento(navegador,'//*[@id="grupo"]')
-                    campo_grupo_produto.send_keys(categoria_produto)
+                        # Preenche o NOME do produto
+                        adicionar_nome_produto = localizar_elemento(navegador,'/html/body/div[2]/div/div/aside[2]/div/div/section/form/div[1]/div[2]/div[1]/div[1]/div[1]/input')
+                        adicionar_nome_produto.send_keys(nome_produto)
+                        
+                        # Aguarda
+                        time.sleep(1)
 
-                    # Aguarda
-                    time.sleep(1)
+                        # Clica para GERAR o código interno
+                        gerar_codigoInterno = localizar_elemento(navegador,'/html/body/div[2]/div/div/aside[2]/div/div/section/form/div[1]/div[2]/div[1]/div[1]/div[2]/div/div/button')
+                        gerar_codigoInterno.click()
 
+                        # Aguarda
+                        time.sleep(1)
 
-                    # Aba "Valores"
-                    aba_valores = localizar_elemento(navegador,'//*[text()="Valores"]')
-                    aba_valores.click()
+                        
+                        
+                        
+                        #se tiver codigo de barras adiciona se nao pula para categoria
+                        if codigo_barras and str(codigo_barras).strip() and str(codigo_barras).lower() != "nan":  
+                            try:
+                                campo_codigo_barras = localizar_elemento(navegador, '/html/body/div[2]/div/div/aside[2]/div/div/section/form/div[1]/div[2]/div[1]/div[1]/div[3]/input')
+                                campo_codigo_barras.clear()
+                                campo_codigo_barras.send_keys(str(codigo_barras).split('.')[0])
+                                print(f"Código de barras {codigo_barras} inserido.")
+                            except Exception as e:
+                                print(f"Erro ao inserir o código de barras: {e}")
+                        
+                        # se aparecer popup de codigo de barras já
 
-                    time.sleep(1)
+                        # Aguarda
+                        time.sleep(1)
+                        
+                        # Seleciona a categoria do produto
+                        campo_grupo_produto = localizar_elemento(navegador,'//*[@id="grupo"]')
+                        campo_grupo_produto.send_keys(categoria_produto)
 
-                    # Preenche o valor de venda
-                    campo_valor_venda = localizar_elemento(navegador,'/html/body/div[2]/div/div/aside[2]/div/div/section/form/div[1]/div[2]/div[3]/div/div[2]/div/div[2]/div[2]/table/tbody/tr/td[4]/input')
-                    campo_valor_venda.clear()
-                    campo_valor_venda.send_keys(str(preco_produto))
-
-                    # Aguarda
-                    time.sleep(1)
-
-                    # Aba "Estoque"
-                    aba_estoque = localizar_elemento(navegador,'//*[text()="Estoque"]')
-                    aba_estoque.click()
-
-                    # Aguarda
-                    time.sleep(1)
-
-                    # Preenche campos de estoque
-                    campo_estoque_min = localizar_elemento(navegador,'/html/body/div[2]/div/div/aside[2]/div/div/section/form/div[1]/div[2]/div[4]/div/div[1]/div[1]/input')
-                    campo_estoque_min.clear()
-                    campo_estoque_min.send_keys(str(estoque_min))
+                        # Aguarda
+                        time.sleep(1)
 
 
+                        # Aba "Valores"
+                        aba_valores = localizar_elemento(navegador,'//*[text()="Valores"]')
+                        aba_valores.click()
 
-                    campo_estoque_max = localizar_elemento(navegador,'/html/body/div[2]/div/div/aside[2]/div/div/section/form/div[1]/div[2]/div[4]/div/div[1]/div[2]/input')
-                    campo_estoque_max.clear()
-                    campo_estoque_max.send_keys(str(estoque_max))
+                        time.sleep(1)
 
-                    campo_estoque_atual = localizar_elemento(navegador,'/html/body/div[2]/div/div/aside[2]/div/div/section/form/div[1]/div[2]/div[4]/div/div[1]/div[3]/input')
-                    campo_estoque_atual.clear()
-                    campo_estoque_atual.send_keys(str(estoque_atual))
+                        # Preenche o valor de venda
+                        campo_valor_venda = localizar_elemento(navegador,'/html/body/div[2]/div/div/aside[2]/div/div/section/form/div[1]/div[2]/div[3]/div/div[2]/div/div[2]/div[2]/table/tbody/tr/td[4]/input')
+                        campo_valor_venda.clear()
+                        campo_valor_venda.send_keys(int(preco_produto))
 
-                    # Aguarda
-                    time.sleep(1)
+                        # Aguarda
+                        time.sleep(1)
 
-                    # Cadastra o produto
-                    cadastrar_produto = localizar_elemento(navegador,'/html/body/div[2]/div/div/aside[2]/div/div/section/form/div[2]/button')
-                    cadastrar_produto.click()
+                        # Aba "Estoque"
+                        aba_estoque = localizar_elemento(navegador,'//*[text()="Estoque"]')
+                        aba_estoque.click()
 
-                    # Aguarda loading desaparecer
-                    aguardar_loading_desaparecer(navegador)
-                    time.sleep(1)
+                        # Aguarda
+                        time.sleep(1)
 
-
-                    
-                else:
-                    print(f'Produto "{nome_produto}" já está cadastrado. Pulando para o próximo produto...')
-                    interagir_com_elemento(navegador,'//*[@id="app"]/div/div/aside[1]/section/ul/li[2]/ul/li[1]/a', lambda elem: elem.click())
-                    # aguardar_loading_desaparecer()
-                    # navegador.refresh()
-                    # aguardar_loading_desaparecer()
-                    time.sleep(1)
+                        # Preenche campos de estoque
+                        campo_estoque_min = localizar_elemento(navegador,'/html/body/div[2]/div/div/aside[2]/div/div/section/form/div[1]/div[2]/div[4]/div/div[1]/div[1]/input')
+                        campo_estoque_min.clear()
+                        campo_estoque_min.send_keys(str(estoque_min))
 
 
-            except Exception as e:
-                print(f"Erro ao verificar se o produto está cadastrado: {e}")
-                continue
+
+                        campo_estoque_max = localizar_elemento(navegador,'/html/body/div[2]/div/div/aside[2]/div/div/section/form/div[1]/div[2]/div[4]/div/div[1]/div[2]/input')
+                        campo_estoque_max.clear()
+                        campo_estoque_max.send_keys(str(estoque_max))
+
+                        campo_estoque_atual = localizar_elemento(navegador,'/html/body/div[2]/div/div/aside[2]/div/div/section/form/div[1]/div[2]/div[4]/div/div[1]/div[3]/input')
+                        campo_estoque_atual.clear()
+                        campo_estoque_atual.send_keys(str(estoque_atual))
+
+                        # Aguarda
+                        time.sleep(1)
+
+                        # Cadastra o produto
+                        cadastrar_produto = localizar_elemento(navegador,'/html/body/div[2]/div/div/aside[2]/div/div/section/form/div[2]/button')
+                        cadastrar_produto.click()
+
+                        # Aguarda loading desaparecer
+                        aguardar_loading_desaparecer(navegador)
+                        time.sleep(1)
+
+                        sucess = True
+
+
+                        
+                    else:
+                        print(f'Produto "{nome_produto}" já está cadastrado. Pulando para o próximo produto...')
+                        # interagir_com_elemento(navegador,'//*[@id="app"]/div/div/aside[1]/section/ul/li[2]/ul/li[1]/a', lambda elem: elem.click())
+                        # aguardar_loading_desaparecer()
+                        # navegador.refresh()
+                        # aguardar_loading_desaparecer()
+                        time.sleep(1)
+
+                        sucess = False
+
+
+                except Exception as e:
+                    tentativas += 1
+                    print(f"Erro ao cadastrar '{nome_produto}', tentativa {tentativas} de {MAX_tentativas}. Erro: {e}")
     
             # Atualiza a página
-            navegador.refresh()
             aguardar_loading_desaparecer(navegador)
             time.sleep(1)
 
@@ -246,6 +262,8 @@ try:
         gerenciar_produtos.click()
         time.sleep(2)
 
+        MAX_tentativas = 3
+
         # processo_cadastrar_produtos()
         for index, row in df.iterrows():
             nome_produto = row['nome']
@@ -254,142 +272,141 @@ try:
             estoque_min = row['estoque-min']
             estoque_max = row['estoque-max']
             estoque_atual = row['estoque-atual']
-        
-            # Verifica se o produto existe
-            try:
-                # Determina a categoria do produto
-                categoria_produto = categorizar_produto(nome_produto)
 
-                aguardar_loading_desaparecer(navegador)
-                time.sleep(1)
+            tentativas = 0
+            sucess = False
+            print('codigo barras.....',str(codigo_barras).strip())
+            while tentativas < MAX_tentativas and not sucess:
+                # Verifica se o produto existe
+                try:
+                    # Determina a categoria do produto
+                    categoria_produto = categorizar_produto(nome_produto)
 
-                #clica no campo buscar produto
-                campo_busca = localizar_elemento(navegador,'/html/body/div[2]/div/div/aside[2]/div/div/section/div/div[1]/div/div[2]/form/div/input')
-                campo_busca.clear()
-                campo_busca.send_keys(nome_produto)
-                campo_busca.send_keys(Keys.RETURN)
+                    aguardar_loading_desaparecer(navegador)
+                    time.sleep(1)
+
+                    #clica no campo buscar produto
+                    campo_busca = localizar_elemento(navegador,'/html/body/div[2]/div/div/aside[2]/div/div/section/div/div[1]/div/div[2]/form/div/input')
+                    campo_busca.clear()
+                    campo_busca.send_keys(nome_produto)
+                    campo_busca.send_keys(Keys.RETURN)
+                    
+                    # Aguarda
+                    aguardar_loading_desaparecer(navegador)
+                    time.sleep(1)
+                    
+                    mensagem_nao_encontrado = navegador.find_elements(By.XPATH, '/html/body/div[2]/div/div/aside[2]/div/div/section/div/div[2]/div[2]/h3')
+                    if len(mensagem_nao_encontrado) > 0 and mensagem_nao_encontrado[0].text == "Nenhum produto foi encontrado!":
+                        print(f'Produto "{nome_produto}" não está cadastrado. Procedendo com o cadastro...')
+                        
+                        time.sleep(1)
+
+                        # Clica no botão para adicionar um novo produto
+                        adicionar_produtos = localizar_elemento(navegador,'/html/body/div[2]/div/div/aside[2]/div/div/section/div/div[1]/div/div[1]/a')
+                        adicionar_produtos.click()
+
+                        time.sleep(1)
+
+                        # Preenche o NOME do produto
+                        adicionar_nome_produto = localizar_elemento(navegador,'/html/body/div[2]/div/div/aside[2]/div/div/section/form/div[1]/div[2]/div[1]/div[1]/div[1]/input')
+                        adicionar_nome_produto.send_keys(nome_produto)
+                        
+                        # Aguarda
+                        time.sleep(1)
+
+                        # Clica para GERAR o código interno
+                        gerar_codigoInterno = localizar_elemento(navegador,'/html/body/div[2]/div/div/aside[2]/div/div/section/form/div[1]/div[2]/div[1]/div[1]/div[2]/div/div/button')
+                        gerar_codigoInterno.click()
+
+                        #se tiver codigo de barras adiciona se nao pula para categoria
+                        if codigo_barras and str(codigo_barras).strip() and str(codigo_barras).lower() != "nan":
+                            try:
+                                campo_codigo_barras = localizar_elemento(navegador, '/html/body/div[2]/div/div/aside[2]/div/div/section/form/div[1]/div[2]/div[1]/div[1]/div[3]/input')
+                                campo_codigo_barras.clear()
+                                campo_codigo_barras.send_keys(str(codigo_barras).split('.')[0])
+                                print(f"Código de barras {codigo_barras} inserido.")
+                            except Exception as e:
+                                print(f"Erro ao inserir o código de barras: {e}")
+                        
+                        # Aguarda
+                        time.sleep(1)
+
+                        # Seleciona a categoria do produto
+                        campo_grupo_produto = localizar_elemento(navegador,'//*[@id="grupo"]')
+                        campo_grupo_produto.send_keys(categoria_produto)
+
+                        # Aguarda
+                        time.sleep(1)
+
+
+                        # Aba "Valores"
+                        aba_valores = localizar_elemento(navegador,'//*[text()="Valores"]')
+                        aba_valores.click()
+
+                        time.sleep(1)
+
+                        # Preenche o valor de venda
+                        campo_valor_venda = localizar_elemento(navegador,'/html/body/div[2]/div/div/aside[2]/div/div/section/form/div[1]/div[2]/div[3]/div/div[2]/div/div[2]/div[2]/table/tbody/tr/td[4]/input')
+                        campo_valor_venda.clear()
+                        campo_valor_venda.send_keys(int(preco_produto))
+
+                        # Aguarda
+                        time.sleep(1)
+
+                        # Aba "Estoque"
+                        aba_estoque = localizar_elemento(navegador,'//*[text()="Estoque"]')
+                        aba_estoque.click()
+
+                        # Aguarda
+                        time.sleep(1)
+
+                        # Preenche campos de estoque
+                        campo_estoque_min = localizar_elemento(navegador,'/html/body/div[2]/div/div/aside[2]/div/div/section/form/div[1]/div[2]/div[4]/div/div[1]/div[1]/input')
+                        campo_estoque_min.clear()
+                        campo_estoque_min.send_keys(str(estoque_min))
+
+
+
+                        campo_estoque_max = localizar_elemento(navegador,'/html/body/div[2]/div/div/aside[2]/div/div/section/form/div[1]/div[2]/div[4]/div/div[1]/div[2]/input')
+                        campo_estoque_max.clear()
+                        campo_estoque_max.send_keys(str(estoque_max))
+
+                        campo_estoque_atual = localizar_elemento(navegador,'/html/body/div[2]/div/div/aside[2]/div/div/section/form/div[1]/div[2]/div[4]/div/div[1]/div[3]/input')
+                        campo_estoque_atual.clear()
+                        campo_estoque_atual.send_keys(str(estoque_atual))
+
+                        # Aguarda
+                        time.sleep(1)
+
+                        # Cadastra o produto
+                        cadastrar_produto = localizar_elemento(navegador,'/html/body/div[2]/div/div/aside[2]/div/div/section/form/div[2]/button')
+                        cadastrar_produto.click()
+
+                        # Aguarda loading desaparecer
+                        aguardar_loading_desaparecer(navegador)
+                        time.sleep(1)
+
+
+                        
+                    else:
+                        print(f'Produto "{nome_produto}" já está cadastrado. Pulando para o próximo produto...')
+                        # interagir_com_elemento(navegador,'//*[@id="app"]/div/div/aside[1]/section/ul/li[2]/ul/li[1]/a', lambda elem: elem.click())
+                        # aguardar_loading_desaparecer()
+                        # navegador.refresh()
+                        # aguardar_loading_desaparecer()
+                        sucess = False
+                        time.sleep(1)
+
+
+                except Exception as e:
+                    tentativas += 1
+                    print(f"Erro ao cadastrar '{nome_produto}', tentativa {tentativas} de {MAX_tentativas}. Erro: {e}")
                 
-                # Aguarda
-                aguardar_loading_desaparecer(navegador)
-                time.sleep(1)
-                
-                mensagem_nao_encontrado = navegador.find_elements(By.XPATH, '/html/body/div[2]/div/div/aside[2]/div/div/section/div/div[2]/div[2]/h3')
-                if len(mensagem_nao_encontrado) > 0 and mensagem_nao_encontrado[0].text == "Nenhum produto foi encontrado!":
-                    print(f'Produto "{nome_produto}" não está cadastrado. Procedendo com o cadastro...')
-                    
-                    # Aguarda
-                    aguardar_loading_desaparecer(navegador)
-                    time.sleep(1)
-
-                    # Clica no botão para adicionar um novo produto
-                    adicionar_produtos = localizar_elemento(navegador,'/html/body/div[2]/div/div/aside[2]/div/div/section/div/div[1]/div/div[1]/a')
-                    adicionar_produtos.click()
-
-                    # Aguarda
-                    aguardar_loading_desaparecer(navegador)
-                    time.sleep(1)
-
-                    # Preenche o NOME do produto
-                    adicionar_nome_produto = localizar_elemento(navegador,'/html/body/div[2]/div/div/aside[2]/div/div/section/form/div[1]/div[2]/div[1]/div[1]/div[1]/input')
-                    adicionar_nome_produto.send_keys(nome_produto)
-                    
-                    # Aguarda
-                    time.sleep(1)
-
-                    # Clica para GERAR o código interno
-                    gerar_codigoInterno = localizar_elemento(navegador,'/html/body/div[2]/div/div/aside[2]/div/div/section/form/div[1]/div[2]/div[1]/div[1]/div[2]/div/div/button')
-                    gerar_codigoInterno.click()
-
-                    #se tiver codigo de barras adiciona se nao pula para categoria
-                    if codigo_barras:  
-                        try:
-                            campo_codigo_barras = localizar_elemento(navegador, '/html/body/div[2]/div/div/aside[2]/div/div/section/form/div[1]/div[2]/div[1]/div[1]/div[3]/input')
-                            campo_codigo_barras.clear()
-                            campo_codigo_barras.send_keys(str(codigo_barras))
-                            print(f"Código de barras {codigo_barras} inserido.")
-                        except Exception as e:
-                            print(f"Erro ao inserir o código de barras: {e}")
-                    
-                    # Aguarda
-                    time.sleep(1)
-
-                    campo_codigo_barras = localizar_elemento(navegador, '/html/body/div[2]/div/div/aside[2]/div/div/section/form/div[1]/div[2]/div[1]/div[1]/div[3]/input')
-                    campo_codigo_barras.clear()
-
-                    # Seleciona a categoria do produto
-                    campo_grupo_produto = localizar_elemento(navegador,'//*[@id="grupo"]')
-                    campo_grupo_produto.send_keys(categoria_produto)
-
-                    # Aguarda
-                    time.sleep(1)
-
-
-                    # Aba "Valores"
-                    aba_valores = localizar_elemento(navegador,'//*[text()="Valores"]')
-                    aba_valores.click()
-
-                    time.sleep(1)
-
-                    # Preenche o valor de venda
-                    campo_valor_venda = localizar_elemento(navegador,'/html/body/div[2]/div/div/aside[2]/div/div/section/form/div[1]/div[2]/div[3]/div/div[2]/div/div[2]/div[2]/table/tbody/tr/td[4]/input')
-                    campo_valor_venda.clear()
-                    campo_valor_venda.send_keys(str(preco_produto))
-
-                    # Aguarda
-                    time.sleep(1)
-
-                    # Aba "Estoque"
-                    aba_estoque = localizar_elemento(navegador,'//*[text()="Estoque"]')
-                    aba_estoque.click()
-
-                    # Aguarda
-                    time.sleep(1)
-
-                    # Preenche campos de estoque
-                    campo_estoque_min = localizar_elemento(navegador,'/html/body/div[2]/div/div/aside[2]/div/div/section/form/div[1]/div[2]/div[4]/div/div[1]/div[1]/input')
-                    campo_estoque_min.clear()
-                    campo_estoque_min.send_keys(str(estoque_min))
-
-
-
-                    campo_estoque_max = localizar_elemento(navegador,'/html/body/div[2]/div/div/aside[2]/div/div/section/form/div[1]/div[2]/div[4]/div/div[1]/div[2]/input')
-                    campo_estoque_max.clear()
-                    campo_estoque_max.send_keys(str(estoque_max))
-
-                    campo_estoque_atual = localizar_elemento(navegador,'/html/body/div[2]/div/div/aside[2]/div/div/section/form/div[1]/div[2]/div[4]/div/div[1]/div[3]/input')
-                    campo_estoque_atual.clear()
-                    campo_estoque_atual.send_keys(str(estoque_atual))
-
-                    # Aguarda
-                    time.sleep(1)
-
-                    # Cadastra o produto
-                    cadastrar_produto = localizar_elemento(navegador,'/html/body/div[2]/div/div/aside[2]/div/div/section/form/div[2]/button')
-                    cadastrar_produto.click()
-
-                    # Aguarda loading desaparecer
-                    aguardar_loading_desaparecer(navegador)
-                    time.sleep(1)
-
-
-                    
-                else:
-                    print(f'Produto "{nome_produto}" já está cadastrado. Pulando para o próximo produto...')
-                    interagir_com_elemento(navegador,'//*[@id="app"]/div/div/aside[1]/section/ul/li[2]/ul/li[1]/a', lambda elem: elem.click())
-                    # aguardar_loading_desaparecer()
-                    # navegador.refresh()
-                    # aguardar_loading_desaparecer()
-                    time.sleep(1)
-
-
-            except Exception as e:
-                print(f"Erro ao verificar se o produto está cadastrado: {e}")
-                continue
     
             # Atualiza a página
             navegador.refresh()
-            aguardar_loading_desaparecer(navegador)
             time.sleep(1)
+            aguardar_loading_desaparecer(navegador)
 
             print("Produto cadastrado com sucesso!")
         print("Todos os produtos foram cadastrados com sucesso!")
@@ -397,7 +414,7 @@ try:
 except Exception as e:
     print(f"Erro: {e}")
 
-# finally:
-#     navegador.quit()
+finally:
+    navegador.quit()
 # Mantém a janela aberta até o usuário decidir fechar
-input("Pressione enter para fechar...")
+# input("Pressione enter para fechar...")
