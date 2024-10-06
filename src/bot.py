@@ -151,11 +151,14 @@ try:
                                 campo_codigo_barras.clear()
                                 campo_codigo_barras.send_keys(str(codigo_barras).split('.')[0])
                                 print(f"Código de barras {codigo_barras} inserido.")
+                                # se aparecer popup de codigo de barras já
+                                popup = localizar_elemento(navegador, '/html/body/div[5]/div[1]/div/div')
+                                print('popup........',popup)
+                                
                             except Exception as e:
                                 print(f"Erro ao inserir o código de barras: {e}")
                         
-                        # se aparecer popup de codigo de barras já
-
+                        
                         # Aguarda
                         time.sleep(1)
                         
@@ -325,6 +328,10 @@ try:
                                 campo_codigo_barras.clear()
                                 campo_codigo_barras.send_keys(str(codigo_barras).split('.')[0])
                                 print(f"Código de barras {codigo_barras} inserido.")
+                                # se aparecer popup de codigo de barras já
+                                popup = localizar_elemento(navegador, '/html/body/div[5]/div[1]/div/div')
+                                print('popup........',popup)
+                                
                             except Exception as e:
                                 print(f"Erro ao inserir o código de barras: {e}")
                         
