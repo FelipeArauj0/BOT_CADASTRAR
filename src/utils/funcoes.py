@@ -5,6 +5,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import StaleElementReferenceException
+from selenium.common.exceptions import NoSuchElementException, TimeoutException
 import os
 import time
 from .dicionario_categorias import categorias_palavras_chave as contagem_palavras
@@ -57,7 +58,7 @@ def localizar_elemento(navegador,xpath_elemento, timeout=10):
             elemento = WebDriverWait(navegador, timeout).until(
                 EC.visibility_of_element_located((By.XPATH, xpath_elemento))
             )
-            print('elemento...',elemento)
+            # print('elemento...',elemento)
             return elemento
         except Exception as e:
             print(f"Tentativa falhou: {e}. Tentando novamente...")
@@ -130,3 +131,65 @@ def aguardar_loading_desaparecer(navegador,timeout=30):
         print(f"Erro ao aguardar o desaparecimento do loading: {e}")
 
 
+def inserir_codigo_barras(navegador, codigo_barras):
+    try:
+        # Localiza o campo de código de barras e insere o código
+        campo_codigo_barras = navegador.find_element(By.XPATH, '/html/body/div[2]/div/div/aside[2]/div/div/section/form/div[1]/div[2]/div[1]/div[1]/div[3]/input')
+        campo_codigo_barras.clear()
+        campo_codigo_barras.send_keys(codigo_barras)
+        
+        # Clica no campo do grupo de produto (ou qualquer campo para avançar no processo)
+        campo_grupo_produto = navegador.find_element(By.XPATH, '/html/body/div[2]/div/div/aside[2]/div/div/section/form/div[1]/div[2]/div[1]/div[1]/div[4]/div/input')
+        campo_grupo_produto.click()
+        
+        # Aguarda um tempo para verificar se aparece o pop-up de erro
+        time.sleep(2)
+        
+         # Espera explícita para verificar se o pop-up aparece
+        try:
+            # Aguarda até que o pop-up apareça por até 5 segundos
+            popup_mensagem = WebDriverWait(navegador, 5).until(
+                EC.visibility_of_element_located((By.XPATH, '//*[contains(text(),"Já existe um produto utilizando este código de barra!")]'))
+            )
+
+            if popup_mensagem:
+                print("Código de barras já cadastrado. Fechando pop-up.")
+            
+                # Fecha o pop-up clicando no botão "OK"
+                botao_ok = navegador.find_element(By.XPATH, '/html/body/div[6]/div[1]/div/div/footer/button')
+                botao_ok.click()
+                return True
+            
+            # Espera o pop-up desaparecer antes de continuar
+            time.sleep(1)
+            
+            # Reinterage com o campo do grupo de produto
+            campo_grupo_produto = navegador.find_element(By.XPATH, '//*[@id="grupo_produto"]')
+            campo_grupo_produto.click()
+            return True
+
+        except TimeoutException:
+            # Se o pop-up não aparecer, continua normalmente
+            print("Código de barras inserido com sucesso. Nenhum pop-up encontrado.")
+        # if popup_mensagem:
+        #     # Fecha o pop-up clicando no botão "OK"
+        #     botao_ok = navegador.find_element(By.XPATH, '/html/body/div[5]/div[1]/div/div/footer/button')
+        #     botao_ok.click()
+            
+        #     # Espera o pop-up desaparecer antes de continuar
+        #     time.sleep(2)
+            
+        #     # Reinterage com o campo do grupo de produto
+        #     campo_grupo_produto = navegador.find_element(By.XPATH, '/html/body/div[2]/div/div/aside[2]/div/div/section/form/div[1]/div[2]/div[1]/div[1]/div[4]/div/input')
+        #     campo_grupo_produto.click()
+            
+        #     time.sleep(1)
+
+        #     campo_codigo_barras.click()
+        #     campo_codigo_barras.clear()
+        #     time.sleep(1)
+            
+    except NoSuchElementException:
+        # Se não encontrar o pop-up, continua o fluxo normalmente
+        time.sleep(2)
+        pass

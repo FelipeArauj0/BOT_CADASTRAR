@@ -13,8 +13,8 @@ from utils.funcoes import interagir_com_elemento
 from utils.funcoes import aguardar_loading_desaparecer
 # from utils.funcoes import processo_cadastrar_produtos
 from utils.navegador import iniciar_navegador
+from utils.funcoes import inserir_codigo_barras
 import math
-
 navegador = iniciar_navegador()
 navegador.get('https://gestaoclick.com/')
 # print("Diretório de trabalho atual:", os.getcwd())
@@ -139,36 +139,27 @@ try:
                         gerar_codigoInterno.click()
 
                         # Aguarda
-                        time.sleep(1)
-
-                        
-                        
+                        time.sleep(1)                       
                         
                         #se tiver codigo de barras adiciona se nao pula para categoria
                         if codigo_barras and str(codigo_barras).strip() and str(codigo_barras).lower() != "nan":  
                             try:
-                                campo_codigo_barras = localizar_elemento(navegador, '/html/body/div[2]/div/div/aside[2]/div/div/section/form/div[1]/div[2]/div[1]/div[1]/div[3]/input')
-                                campo_codigo_barras.clear()
-                                campo_codigo_barras.send_keys(str(codigo_barras).split('.')[0])
-                                print(f"Código de barras {codigo_barras} inserido.")
-                                # se aparecer popup de codigo de barras já
-                                popup = localizar_elemento(navegador, '/html/body/div[5]/div[1]/div/div')
-                                print('popup........',popup)
-                                
+                                inserir_codigo_barras(navegador, str(codigo_barras).split('.')[0])
                             except Exception as e:
                                 print(f"Erro ao inserir o código de barras: {e}")
                         
-                        
+                        print('passei pelo if....')
+                    
                         # Aguarda
                         time.sleep(1)
-                        
-                        # Seleciona a categoria do produto
-                        campo_grupo_produto = localizar_elemento(navegador,'//*[@id="grupo"]')
-                        campo_grupo_produto.send_keys(categoria_produto)
+                    
+                        # Insere a categoria do produto
+                        inserir_grupo_produto = localizar_elemento(navegador,'/html/body/div[2]/div/div/aside[2]/div/div/section/form/div[1]/div[2]/div[1]/div[1]/div[4]/div/input')
+                        inserir_grupo_produto.clear()
+                        inserir_grupo_produto.send_keys(categoria_produto)
 
                         # Aguarda
                         time.sleep(1)
-
 
                         # Aba "Valores"
                         aba_valores = localizar_elemento(navegador,'//*[text()="Valores"]')
@@ -223,10 +214,6 @@ try:
                         
                     else:
                         print(f'Produto "{nome_produto}" já está cadastrado. Pulando para o próximo produto...')
-                        # interagir_com_elemento(navegador,'//*[@id="app"]/div/div/aside[1]/section/ul/li[2]/ul/li[1]/a', lambda elem: elem.click())
-                        # aguardar_loading_desaparecer()
-                        # navegador.refresh()
-                        # aguardar_loading_desaparecer()
                         time.sleep(1)
 
                         sucess = False
@@ -278,7 +265,7 @@ try:
 
             tentativas = 0
             sucess = False
-            print('codigo barras.....',str(codigo_barras).strip())
+            # print('codigo barras.....',str(codigo_barras).strip())
             while tentativas < MAX_tentativas and not sucess:
                 # Verifica se o produto existe
                 try:
@@ -320,27 +307,31 @@ try:
                         # Clica para GERAR o código interno
                         gerar_codigoInterno = localizar_elemento(navegador,'/html/body/div[2]/div/div/aside[2]/div/div/section/form/div[1]/div[2]/div[1]/div[1]/div[2]/div/div/button')
                         gerar_codigoInterno.click()
+                        
+                        # Aguarda
+                        time.sleep(1)
+                        campo_codigo_barras = localizar_elemento(navegador, '/html/body/div[2]/div/div/aside[2]/div/div/section/form/div[1]/div[2]/div[1]/div[1]/div[3]/input')
+
+                        # Aguarda
+                        time.sleep(1)
+                        campo_grupo_produto = localizar_elemento(navegador,'//*[@id="grupo"]')
 
                         #se tiver codigo de barras adiciona se nao pula para categoria
                         if codigo_barras and str(codigo_barras).strip() and str(codigo_barras).lower() != "nan":
                             try:
-                                campo_codigo_barras = localizar_elemento(navegador, '/html/body/div[2]/div/div/aside[2]/div/div/section/form/div[1]/div[2]/div[1]/div[1]/div[3]/input')
-                                campo_codigo_barras.clear()
-                                campo_codigo_barras.send_keys(str(codigo_barras).split('.')[0])
-                                print(f"Código de barras {codigo_barras} inserido.")
-                                # se aparecer popup de codigo de barras já
-                                popup = localizar_elemento(navegador, '/html/body/div[5]/div[1]/div/div')
-                                print('popup........',popup)
-                                
+                               inserir_codigo_barras(navegador, str(codigo_barras).split('.')[0])
                             except Exception as e:
                                 print(f"Erro ao inserir o código de barras: {e}")
                         
-                        # Aguarda
+                        
+                        print('passei pelo if....')
                         time.sleep(1)
 
-                        # Seleciona a categoria do produto
-                        campo_grupo_produto = localizar_elemento(navegador,'//*[@id="grupo"]')
-                        campo_grupo_produto.send_keys(categoria_produto)
+                        # Insere a categoria do produto
+                        inserir_grupo_produto = localizar_elemento(navegador,'/html/body/div[2]/div/div/aside[2]/div/div/section/form/div[1]/div[2]/div[1]/div[1]/div[4]/div/input')
+                        inserir_grupo_produto.clear()
+                        inserir_grupo_produto.send_keys(categoria_produto)
+                    
 
                         # Aguarda
                         time.sleep(1)
