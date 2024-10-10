@@ -15,10 +15,14 @@ from utils.funcoes import aguardar_loading_desaparecer
 from utils.navegador import iniciar_navegador
 from utils.funcoes import inserir_codigo_barras
 import math
+
+
+
 navegador = iniciar_navegador()
 navegador.get('https://gestaoclick.com/')
 # print("Diretório de trabalho atual:", os.getcwd())
-df = pd.read_excel("C:/Users/Usuario/Desktop/bot_cadastrar/src/cadastro_produtos_matriz.xlsx") # PC casa
+# df = pd.read_excel("C:/Users/Usuario/Desktop/bot_cadastrar/src/cadastro_produtos_matriz.xlsx") # PC casa
+df = pd.read_excel("C:/Users/Usuario/Desktop/bot_cadastrar/src/PRODUTOS.xlsx") # PC casa
 
 #efetuar login no site
 campo_email = navegador.find_element(By.XPATH, '//*[@id="email"]')
@@ -206,6 +210,34 @@ try:
                             # Aguarda
                             time.sleep(1)
 
+                            menu_lojas = localizar_elemento(navegador, '/html/body/div[2]/div/div/aside[2]/div/div/section/form/div[1]/div[1]/ul/li[9]/a')
+                            menu_lojas.click()
+
+                            # Aguarda
+                            time.sleep(1)
+
+                            # # Aguarda até que a checkbox esteja visível e clicável
+                            # try:
+                            #     retirar_loja_vale = WebDriverWait(navegador, 10).until(
+                            #         EC.element_to_be_clickable((By.ID, '__BVID__656'))
+                            #     )
+                            #     print("Checkbox localizada.")
+    
+                            #     # Usa JavaScript para verificar se a checkbox está marcada
+                            #     is_checked = navegador.execute_script("return arguments[0].checked;", retirar_loja_vale)
+                                
+                            #     if is_checked:
+                            #         # Clica usando JavaScript para desmarcar
+                            #         navegador.execute_script("arguments[0].click();", retirar_loja_vale)
+                            #         print("Caixinha 'ALGO+VALE' desmarcada.")
+                            #     else:
+                            #         print("Caixinha 'ALGO+VALE' já estava desmarcada.")
+                            # except Exception as e:
+                            #     print(f"Erro ao tentar desmarcar a checkbox: {e}")
+                            
+                            # Aguarda
+                            time.sleep(2)
+
                             # Cadastra o produto
                             cadastrar_produto = localizar_elemento(navegador,'/html/body/div[2]/div/div/aside[2]/div/div/section/form/div[2]/button')
                             cadastrar_produto.click()
@@ -239,8 +271,37 @@ try:
                             campo_estoque_atual.clear()
                             campo_estoque_atual.send_keys(str(estoque_atual))
 
+
                             # Aguarda
                             time.sleep(1)
+
+                            menu_lojas = localizar_elemento(navegador, '/html/body/div[2]/div/div/aside[2]/div/div/section/form/div[1]/div[1]/ul/li[9]/a')
+                            menu_lojas.click()
+
+                            # Aguarda
+                            time.sleep(1)
+
+                            # # Aguarda até que a checkbox esteja visível e clicável
+                            # try:
+                            #     retirar_loja_vale = WebDriverWait(navegador, 10).until(
+                            #         EC.element_to_be_clickable((By.ID, '__BVID__656'))
+                            #     )
+                            #     print("Checkbox localizada.")
+    
+                            #     # Usa JavaScript para verificar se a checkbox está marcada
+                            #     is_checked = navegador.execute_script("return arguments[0].checked;", retirar_loja_vale)
+                                
+                            #     if is_checked:
+                            #         # Clica usando JavaScript para desmarcar
+                            #         navegador.execute_script("arguments[0].click();", retirar_loja_vale)
+                            #         print("Caixinha 'ALGO+VALE' desmarcada.")
+                            #     else:
+                            #         print("Caixinha 'ALGO+VALE' já estava desmarcada.")
+                            # except Exception as e:
+                            #     print(f"Erro ao tentar desmarcar a checkbox: {e}")
+                            
+                            # Aguarda
+                            time.sleep(2)
 
                             # Cadastra o produto
                             cadastrar_produto = localizar_elemento(navegador,'/html/body/div[2]/div/div/aside[2]/div/div/section/form/div[2]/button')
@@ -425,6 +486,34 @@ try:
                             # Aguarda
                             time.sleep(1)
 
+                            menu_lojas = localizar_elemento(navegador, '/html/body/div[2]/div/div/aside[2]/div/div/section/form/div[1]/div[1]/ul/li[9]/a')
+                            menu_lojas.click()
+
+                             # Aguarda
+                            time.sleep(2)
+
+                            # # Aguarda até que a checkbox esteja visível e clicável
+                            # try:
+                            #     retirar_loja_vale = WebDriverWait(navegador, 10).until(
+                            #         EC.element_to_be_clickable((By.ID, '__BVID__656'))
+                            #     )
+                            #     print("Checkbox localizada.")
+    
+                            #     # Usa JavaScript para verificar se a checkbox está marcada
+                            #     is_checked = navegador.execute_script("return arguments[0].checked;", retirar_loja_vale)
+                                
+                            #     if is_checked:
+                            #         # Clica usando JavaScript para desmarcar
+                            #         navegador.execute_script("arguments[0].click();", retirar_loja_vale)
+                            #         print("Caixinha 'ALGO+VALE' desmarcada.")
+                            #     else:
+                            #         print("Caixinha 'ALGO+VALE' já estava desmarcada.")
+                            # except Exception as e:
+                            #     print(f"Erro ao tentar desmarcar a checkbox: {e}")
+                            
+                            # Aguarda
+                            time.sleep(2)
+                            
                             # Cadastra o produto
                             cadastrar_produto = localizar_elemento(navegador,'/html/body/div[2]/div/div/aside[2]/div/div/section/form/div[2]/button')
                             cadastrar_produto.click()
@@ -460,6 +549,33 @@ try:
 
                             # Aguarda
                             time.sleep(1)
+
+                            menu_lojas = localizar_elemento(navegador, '/html/body/div[2]/div/div/aside[2]/div/div/section/form/div[1]/div[1]/ul/li[9]/a')
+                            menu_lojas.click()
+
+                             # Aguarda
+                            time.sleep(2)
+
+                            # # Aguarda até que a checkbox esteja visível e clicável
+                            # try:
+                            #     retirar_loja_vale = WebDriverWait(navegador, 10).until(
+                            #         EC.element_to_be_clickable((By.ID, '__BVID__656'))
+                            #     )
+                            #     print("Checkbox localizada.")
+    
+                            #     # Usa JavaScript para verificar se a checkbox está marcada
+                            #     is_checked = navegador.execute_script("return arguments[0].checked;", retirar_loja_vale)
+                                
+                            #     if is_checked:
+                            #         # Clica usando JavaScript para desmarcar
+                            #         navegador.execute_script("arguments[0].click();", retirar_loja_vale)
+                            #         print("Caixinha 'ALGO+VALE' desmarcada.")
+                            #     else:
+                            #         print("Caixinha 'ALGO+VALE' já estava desmarcada.")
+                            # except Exception as e:
+                            #     print(f"Erro ao tentar desmarcar a checkbox: {e}")
+                            # Aguarda
+                            time.sleep(2)
 
                             # Cadastra o produto
                             cadastrar_produto = localizar_elemento(navegador,'/html/body/div[2]/div/div/aside[2]/div/div/section/form/div[2]/button')
