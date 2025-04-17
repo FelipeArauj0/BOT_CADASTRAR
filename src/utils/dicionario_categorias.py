@@ -6,3 +6,5 @@ categorias_palavras_chave = {  # Dicionário para contar as ocorrências de pala
     "ELETRÔNICOS": ["antena", "controle", "fone", "cabo", "adaptador", "carregador"],
     "INFORMÁTICA": ["mouse", "teclado", "monitor", "impressora", "usb", "pendrive"]
 }  
+
+

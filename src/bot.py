@@ -615,3 +615,4 @@ finally:
     navegador.quit()
 # Mantém a janela aberta até o usuário decidir fechar
 # input("Pressione enter para fechar...")
+
